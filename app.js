@@ -220,19 +220,13 @@ app.put('/user', async (req, res) => {
             'User';
 
 
-        const role =
-            user?.role ||
-            'guest';
+        const role = user?.role || 'guest';
 
 
-        const status =
-            user?.status ||
-            null;
+        const status = user?.status || null;
 
 
-        const membership =
-            user?.membership ||
-            null;
+        const membership = user?.membership || null;
 
 
         // --------------------------------------------------
@@ -240,13 +234,11 @@ app.put('/user', async (req, res) => {
         // --------------------------------------------------
 
         if (!email) {
-
             return res.status(400).send({
                 message: 'Email is required'
             });
 
         }
-
 
         // --------------------------------------------------
         // CHECK EXISTING USER
@@ -268,7 +260,6 @@ app.put('/user', async (req, res) => {
         // --------------------------------------------------
 
         if (existingUsers.length > 0) {
-
             console.log(
                 'User already exists:',
                 existingUsers[0]
@@ -277,7 +268,6 @@ app.put('/user', async (req, res) => {
             return res.send(
                 existingUsers[0]
             );
-
         }
 
 
@@ -362,11 +352,8 @@ app.put('/user', async (req, res) => {
 // ======================================================
 
 app.patch('/users/:id', async (req, res) => {
-
     try {
-
         const id = req.params.id;
-
 
         const result = await updateTable(
             'users',
@@ -485,7 +472,6 @@ app.get('/user/:email', async (req, res) => {
 app.get('/meals', async (req, res) => {
 
     try {
-
         const [rows] = await db.query(
             `
             SELECT *
@@ -497,13 +483,9 @@ app.get('/meals', async (req, res) => {
         res.send(rows);
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -512,11 +494,8 @@ app.get('/meals', async (req, res) => {
 // ======================================================
 
 app.get('/meal/:id', async (req, res) => {
-
     try {
-
         const id = req.params.id;
-
 
         const [rows] = await db.query(
             `
@@ -537,15 +516,11 @@ app.get('/meal/:id', async (req, res) => {
 
         }
 
-
         res.send(rows[0]);
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
 
 });
@@ -558,9 +533,7 @@ app.get('/meal/:id', async (req, res) => {
 app.post('/meals', async (req, res) => {
 
     try {
-
         const meal = req.body;
-
 
         const [result] = await db.query(
             `
@@ -582,46 +555,29 @@ app.post('/meals', async (req, res) => {
             `,
             [
                 meal.title || null,
-
                 meal.category || null,
-
                 meal.image || null,
-
                 meal.ingredients || null,
-
                 meal.description || null,
-
                 meal.price || null,
-
                 meal.rating || null,
-
                 meal.likes ?? 0,
-
                 meal.reviews || null,
-
                 meal.adminName || null,
-
                 meal.adminEmail || null
             ]
         );
 
 
         res.send({
-
             acknowledged: true,
-
             insertedId: result.insertId,
-
             _id: result.insertId
-
         });
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
 
 });
@@ -634,9 +590,7 @@ app.post('/meals', async (req, res) => {
 app.delete('/meal/:id', async (req, res) => {
 
     try {
-
         const id = req.params.id;
-
 
         const [result] = await db.query(
             `
@@ -796,38 +750,17 @@ app.patch('/like-meal/:id', async (req, res) => {
 // ======================================================
 
 
+// ======================================================
 // ADD REQUESTED MEAL
+// ======================================================
+
 app.post('/requested', async (req, res) => {
-
     try {
-
         const meal = req.body;
-
-
-        /*
-            requested._id is NOT AUTO_INCREMENT
-            in your current SQL table.
-
-            Therefore we generate the next ID manually.
-        */
-
-        const [lastId] = await db.query(
-            `
-            SELECT COALESCE(MAX(_id), 0) + 1 AS nextId
-            FROM requested
-            `
-        );
-
-
-        const newId =
-            lastId[0].nextId;
-
-
         const [result] = await db.query(
             `
             INSERT INTO requested
             (
-                _id,
                 email,
                 membership,
                 name,
@@ -850,65 +783,38 @@ app.post('/requested', async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `,
             [
-                newId,
-
                 meal.email || null,
-
                 meal.membership || null,
-
                 meal.name || null,
-
                 meal.role || null,
-
                 meal.status || 'pending',
-
                 meal.timestamp || Date.now(),
-
                 meal.title || null,
-
                 meal.category || null,
-
                 meal.image || null,
-
                 meal.ingredients || null,
-
                 meal.description || null,
-
                 meal.price || null,
-
                 meal.rating || null,
-
                 meal.likes ?? 0,
-
                 meal.reviews || null,
-
                 meal.adminName || null,
-
                 meal.adminEmail || null,
-
                 meal.mealId || null
             ]
         );
 
 
         res.send({
-
             acknowledged: true,
-
-            insertedId: newId,
-
-            _id: newId
-
+            insertedId: result.insertId,
+            _id: result.insertId
         });
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -917,9 +823,7 @@ app.post('/requested', async (req, res) => {
 // ======================================================
 
 app.get('/requests', async (req, res) => {
-
     try {
-
         const [rows] = await db.query(
             `
             SELECT *
@@ -947,11 +851,8 @@ app.get('/requests', async (req, res) => {
 // ======================================================
 
 app.get('/requests/:stat', async (req, res) => {
-
     try {
-
         const stat = req.params.stat;
-
 
         const [rows] = await db.query(
             `
@@ -967,13 +868,9 @@ app.get('/requests/:stat', async (req, res) => {
         res.send(rows);
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -982,12 +879,8 @@ app.get('/requests/:stat', async (req, res) => {
 // ======================================================
 
 app.delete('/requested/:id', async (req, res) => {
-
     try {
-
         const id = req.params.id;
-
-
         const [result] = await db.query(
             `
             DELETE FROM requested
@@ -995,16 +888,10 @@ app.delete('/requested/:id', async (req, res) => {
             `,
             [id]
         );
-
-
         res.send(result);
-
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
 
 });
@@ -1015,11 +902,8 @@ app.delete('/requested/:id', async (req, res) => {
 // ======================================================
 
 app.patch('/requested/:id', async (req, res) => {
-
     try {
-
         const id = req.params.id;
-
 
         const result = await updateTable(
             'requested',
@@ -1077,9 +961,7 @@ app.patch('/requested/:id', async (req, res) => {
 
 // GET ALL MEMBERSHIPS
 app.get('/memberships', async (req, res) => {
-
     try {
-
         const [rows] = await db.query(
             `
             SELECT *
@@ -1087,28 +969,18 @@ app.get('/memberships', async (req, res) => {
             ORDER BY _id ASC
             `
         );
-
-
         console.log(
             'Memberships found:',
             rows.length
         );
-
-
         res.send(rows);
-
     } catch (error) {
-
         console.error(
             'Membership error:',
             error
         );
-
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -1119,10 +991,7 @@ app.get('/memberships', async (req, res) => {
 app.get('/membership/:package', async (req, res) => {
 
     try {
-
-        const packageName =
-            req.params.package;
-
+        const packageName = req.params.package;
 
         const [rows] = await db.query(
             `
@@ -1136,7 +1005,6 @@ app.get('/membership/:package', async (req, res) => {
 
 
         if (rows.length === 0) {
-
             return res.status(404).send({
                 message: 'Membership package not found'
             });
@@ -1147,13 +1015,9 @@ app.get('/membership/:package', async (req, res) => {
         res.send(rows[0]);
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -1164,9 +1028,7 @@ app.get('/membership/:package', async (req, res) => {
 
 // GET UPCOMING MEALS
 app.get('/upcoming', async (req, res) => {
-
     try {
-
         const [rows] = await db.query(
             `
             SELECT *
@@ -1175,17 +1037,12 @@ app.get('/upcoming', async (req, res) => {
             `
         );
 
-
         res.send(rows);
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -1196,54 +1053,21 @@ app.get('/upcoming', async (req, res) => {
 
 // ADD LIKE
 app.post('/likes/:email', async (req, res) => {
-
     try {
-
-        const email =
-            req.params.email;
+        const email = req.params.email;
 
 
-        let likeData =
-            req.body;
-
-
-        /*
-            Support both:
-
-            {
-                email,
-                title,
-                mealId
-            }
-
-            and old:
-
-            {
-                param3: {
-                    email,
-                    title,
-                    mealId
-                }
-            }
-        */
+        let likeData = req.body;
 
         if (req.body?.param3) {
-
-            likeData =
-                req.body.param3;
-
+            likeData = req.body.param3;
         }
 
 
-        if (
-            likeData?.email &&
-            likeData.email !== email
-        ) {
-
+        if (likeData?.email && likeData.email !== email) {
             return res.status(400).send({
                 message: 'Invalid like request'
             });
-
         }
 
 
@@ -1269,52 +1093,32 @@ app.post('/likes/:email', async (req, res) => {
             `,
             [
                 likeData?.title || null,
-
                 likeData?.category || null,
-
                 likeData?.image || null,
-
                 likeData?.ingredients || null,
-
                 likeData?.description || null,
-
                 likeData?.price || null,
-
                 likeData?.rating || null,
-
                 likeData?.likes ?? 0,
-
                 likeData?.reviews || null,
-
                 likeData?.adminName || null,
-
                 likeData?.adminEmail || null,
-
                 likeData?.mealId || null,
-
                 email
             ]
         );
 
 
         res.send({
-
             acknowledged: true,
-
             insertedId: result.insertId,
-
             _id: result.insertId
-
         });
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -1323,9 +1127,7 @@ app.post('/likes/:email', async (req, res) => {
 // ======================================================
 
 app.get('/likes', async (req, res) => {
-
     try {
-
         const [rows] = await db.query(
             `
             SELECT *
@@ -1333,18 +1135,11 @@ app.get('/likes', async (req, res) => {
             ORDER BY _id DESC
             `
         );
-
-
         res.send(rows);
-
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -1352,25 +1147,13 @@ app.get('/likes', async (req, res) => {
 // STRIPE PAYMENT
 // ======================================================
 
-app.post(
-    '/create-payment-intent',
-    async (req, res) => {
-
+app.post('/create-payment-intent', async (req, res) => {
         try {
+            const price = req.body.price;
 
-            const price =
-                req.body.price;
+            const priceInCent = parseFloat(price) * 100;
 
-
-            const priceInCent =
-                parseFloat(price) * 100;
-
-
-            if (
-                !price ||
-                isNaN(priceInCent) ||
-                priceInCent < 1
-            ) {
+            if (!price || isNaN(priceInCent) || priceInCent < 1) {
 
                 return res.status(400).send({
                     message: 'Invalid price'
@@ -1378,37 +1161,24 @@ app.post(
 
             }
 
-
             const paymentIntent =
                 await stripe.paymentIntents.create({
-
-                    amount:
-                        Math.round(priceInCent),
-
+                    amount: Math.round(priceInCent),
                     currency: 'usd',
-
                     automatic_payment_methods: {
                         enabled: true
                     }
-
                 });
 
 
             res.send({
-
-                clientSecret:
-                    paymentIntent.client_secret
-
+                clientSecret: paymentIntent.client_secret
             });
 
         } catch (error) {
-
             console.error(error);
-
             res.status(500).send(error);
-
         }
-
     }
 );
 
@@ -1420,37 +1190,14 @@ app.post(
 
 // ADD SUBSCRIBER
 app.post('/subscribers', async (req, res) => {
-
     try {
-
-        const subscriber =
-            req.body;
-
+        const subscriber = req.body;
 
         if (!subscriber.email) {
-
             return res.status(400).send({
                 message: 'Email is required'
             });
-
         }
-
-
-        /*
-            subscribers table:
-
-            _id
-            packageName
-            price
-            userID
-            email
-            transactionId
-            date
-            createdAt
-
-            There is NO name column.
-        */
-
 
         const [result] = await db.query(
             `
@@ -1466,46 +1213,26 @@ app.post('/subscribers', async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?)
             `,
             [
-                subscriber.packageName ||
-                null,
-
-                subscriber.price ||
-                null,
-
-                subscriber.userID ||
-                subscriber.userId ||
-                null,
-
+                subscriber.packageName || null,
+                subscriber.price || null,
+                subscriber.userID || subscriber.userId || null,
                 subscriber.email,
-
-                subscriber.transactionId ||
-                null,
-
+                subscriber.transactionId || null,
                 subscriber.date
                     ? new Date(subscriber.date)
                     : new Date()
             ]
         );
 
-
         res.send({
-
             acknowledged: true,
-
-            insertedId:
-                result.insertId,
-
-            _id:
-                result.insertId
-
+            insertedId: result.insertId,
+            _id: result.insertId
         });
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
 
 });
@@ -1516,9 +1243,7 @@ app.post('/subscribers', async (req, res) => {
 // ======================================================
 
 app.get('/subscribers', async (req, res) => {
-
     try {
-
         const [rows] = await db.query(
             `
             SELECT *
@@ -1527,17 +1252,12 @@ app.get('/subscribers', async (req, res) => {
             `
         );
 
-
         res.send(rows);
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -1548,9 +1268,7 @@ app.get('/subscribers', async (req, res) => {
 
 // GET ALL REVIEWS
 app.get('/reviews', async (req, res) => {
-
     try {
-
         const [rows] = await db.query(
             `
             SELECT *
@@ -1559,17 +1277,11 @@ app.get('/reviews', async (req, res) => {
             `
         );
 
-
         res.send(rows);
-
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
-
 });
 
 
@@ -1580,10 +1292,7 @@ app.get('/reviews', async (req, res) => {
 app.get('/reviews/:id', async (req, res) => {
 
     try {
-
-        const id =
-            req.params.id;
-
+        const id = req.params.id;
 
         const [rows] = await db.query(
             `
@@ -1598,11 +1307,8 @@ app.get('/reviews/:id', async (req, res) => {
         res.send(rows);
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
 
 });
@@ -1616,20 +1322,7 @@ app.post('/reviews', async (req, res) => {
 
     try {
 
-        const review =
-            req.body;
-
-
-        /*
-            reviews table uses:
-
-            review
-
-            NOT:
-
-            comment
-        */
-
+        const review = req.body;
 
         const [result] = await db.query(
             `
@@ -1658,85 +1351,56 @@ app.post('/reviews', async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `,
             [
-                review.review ||
-                review.comment ||
-                null,
+                review.review || review.comment || null,
 
-                review.title ||
-                null,
+                review.title || null,
 
-                review.category ||
-                null,
+                review.category || null,
 
-                review.image ||
-                null,
+                review.image || null,
 
-                review.ingredients ||
-                null,
+                review.ingredients || null,
 
-                review.description ||
-                null,
+                review.description || null,
 
-                review.price ||
-                null,
+                review.price || null,
 
-                review.rating ||
-                null,
+                review.rating || null,
 
-                review.likes ??
-                0,
+                review.likes ?? 0,
 
-                review.reviews ||
-                null,
+                review.reviews || null,
 
-                review.adminName ||
-                null,
+                review.adminName || null,
 
-                review.adminEmail ||
-                null,
+                review.adminEmail || null,
 
-                review.email ||
-                null,
+                review.email || null,
 
-                review.name ||
-                null,
+                review.name || null,
 
-                review.role ||
-                null,
+                review.role || null,
 
-                review.status ||
-                'verified',
+                review.status || 'verified',
 
-                review.timestamp ||
-                Date.now(),
+                review.timestamp || Date.now(),
 
-                review.membership ||
-                null,
+                review.membership || null,
 
-                review.mealId ||
-                null
+                review.mealId || null
             ]
         );
 
 
         res.send({
-
             acknowledged: true,
-
-            insertedId:
-                result.insertId,
-
-            _id:
-                result.insertId
-
+            insertedId: result.insertId,
+            _id: result.insertId
         });
 
     } catch (error) {
-
         console.error(error);
-
         res.status(500).send(error);
-
     }
 
 });
@@ -1747,11 +1411,8 @@ app.post('/reviews', async (req, res) => {
 // ======================================================
 
 app.patch('/reviews/:id', async (req, res) => {
-
     try {
-
-        const id =
-            req.params.id;
+        const id = req.params.id;
 
 
         const result = await updateTable(
@@ -1812,8 +1473,7 @@ app.delete('/reviews/:id', async (req, res) => {
 
     try {
 
-        const id =
-            req.params.id;
+        const id = req.params.id;
 
 
         const [result] = await db.query(
@@ -1839,10 +1499,10 @@ app.delete('/reviews/:id', async (req, res) => {
 
 
 // ======================================================
-// GET MEAL CATEGORY SUMMARY
-// GROUP BY
+// GET MEAL CATEGORY SUMMARY (GROUP BY)
 // ======================================================
 
+// avg pricing
 app.get('/meals/category-summary', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -1867,6 +1527,7 @@ app.get('/meals/category-summary', async (req, res) => {
 });
 
 
+//HAVING
 app.get('/meals/category-rating-summary', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -1890,6 +1551,7 @@ app.get('/meals/category-rating-summary', async (req, res) => {
     }
 });
 
+// JOIN
 app.get('/users/reviews', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -1916,7 +1578,7 @@ app.get('/users/reviews', async (req, res) => {
     }
 });
 
-
+// didn't use (skip)
 app.get('/reviews/users', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -1943,7 +1605,7 @@ app.get('/reviews/users', async (req, res) => {
     }
 });
 
-
+// SubQuery
 app.get('/meals/above-average-price', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -2011,7 +1673,7 @@ app.get('/meals/admin-details', async (req, res) => {
     }
 });
 
-
+// Trigger deleted meals
 app.get('/deleted-meals', async (req, res) => {
     try {
 
@@ -2038,13 +1700,11 @@ app.get('/deleted-meals', async (req, res) => {
 });
 
 
-
+// procedure
 app.get('/meals/category/:category', async (req, res) => {
 
     try {
-
         const { category } = req.params;
-
         const [rows] = await db.query(
             'CALL GetMealsByCategory(?)',
             [category]
@@ -2060,9 +1720,7 @@ app.get('/meals/category/:category', async (req, res) => {
             message: 'Failed to get meals by category',
             error: error.message
         });
-
     }
-
 });
 
 
