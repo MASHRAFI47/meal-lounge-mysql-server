@@ -757,6 +757,7 @@ app.patch('/like-meal/:id', async (req, res) => {
 app.post('/requested', async (req, res) => {
     try {
         const meal = req.body;
+
         const [result] = await db.query(
             `
             INSERT INTO requested
@@ -780,7 +781,7 @@ app.post('/requested', async (req, res) => {
                 adminEmail,
                 mealId
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `,
             [
                 meal.email || null,
@@ -804,7 +805,6 @@ app.post('/requested', async (req, res) => {
             ]
         );
 
-
         res.send({
             acknowledged: true,
             insertedId: result.insertId,
@@ -813,7 +813,12 @@ app.post('/requested', async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).send(error);
+
+        res.status(500).send({
+            message: error.message,
+            code: error.code,
+            sqlMessage: error.sqlMessage
+        });
     }
 });
 
