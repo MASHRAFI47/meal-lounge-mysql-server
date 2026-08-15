@@ -1642,25 +1642,6 @@ app.get('/meals/above-average-price', async (req, res) => {
 //View
 app.get('/meals/admin-details', async (req, res) => {
     try {
-
-        await db.query(`
-            CREATE OR REPLACE VIEW meal_admin_details AS
-            SELECT
-                meals._id,
-                meals.title,
-                meals.category,
-                meals.price,
-                meals.rating,
-                meals.likes,
-                meals.adminName,
-                meals.adminEmail,
-                users.name AS user_name,
-                users.role AS user_role
-            FROM meals
-            LEFT JOIN users
-                ON meals.adminEmail = users.email
-        `);
-
         const [rows] = await db.query(`
             SELECT *
             FROM meal_admin_details
@@ -1723,6 +1704,28 @@ app.get('/meals/category/:category', async (req, res) => {
 
         res.status(500).send({
             message: 'Failed to get meals by category',
+            error: error.message
+        });
+    }
+});
+
+
+
+app.get('/served-meals', async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT *
+            FROM served_meals
+            ORDER BY _id DESC
+        `);
+
+        res.send(rows);
+
+    } catch (error) {
+        console.error('GET SERVED MEALS ERROR:', error);
+
+        res.status(500).send({
+            message: 'Failed to get served meals',
             error: error.message
         });
     }
